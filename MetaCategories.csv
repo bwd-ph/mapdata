@@ -1,0 +1,43 @@
+Category,IndID
+Indices of Deprivation,IMD
+Indices of Deprivation,Income_dep
+Indices of Deprivation,Emp_dep
+Indices of Deprivation,Educ_dep
+Indices of Deprivation,Health_dep
+Indices of Deprivation,Crime_dep
+Indices of Deprivation,Barriers_dep
+Indices of Deprivation,Env_dep
+Indices of Deprivation,Income_dep_child
+Indices of Deprivation,Income_dep_older
+Mortality,Death_allcause_allage
+Mortality,Death_allcause_under65
+Mortality,Death_allcause_under75
+Mortality,Death_cancer_allage
+Mortality,Death_cancer_under75
+Mortality,Death_CVD_allage
+Mortality,Death_CVD_under75
+Mortality,Death_CHD_allage
+Mortality,Death_CHD_under75
+Mortality,Death_stroke_allage
+Mortality,Death_resp_allage
+Healthy Hearts,Death_CVD_allage
+Healthy Hearts,Death_CVD_under75
+Healthy Hearts,Death_CHD_allage
+Healthy Hearts,Death_CHD_under75
+Healthy Hearts,Death_stroke_allage
+Healthy Hearts,Em_admit_CHD
+Healthy Hearts,El_admit_CHD
+Healthy Hearts,Em_admit_stroke
+Healthy Hearts,Em_admit_MI
+Hospital Admissions,Em_admit_allcause
+Hospital Admissions,El_admit_allcause
+Hospital Admissions,Em_admit_CHD
+Hospital Admissions,El_admit_CHD
+Hospital Admissions,Em_admit_stroke
+Hospital Admissions,Em_admit_MI
+Hospital Admissions,Em_admit_COPD
+Hospital Admissions,Em_admit_hipfrac_65plus
+Hospital Admissions,El_admit_hiprep
+Hospital Admissions,El_admit_kneerep
+Hospital Admissions,Hosp_stay_selfharm
+Hospital Admissions,Hosp_stay_alcohol

@@ -2,7 +2,7 @@ library(tidyverse)
 library(sqldf)
 library(stringr)
 
-setwd('C:/Users/user/Documents/BwD work/Interactive Mapping/Data files')
+setwd('C:/Users/user/Documents/BwD work/Interactive Mapping/mapdata')
 
 PennineDep <- read.csv("https://www.gov.uk/government/uploads/system/uploads/attachment_data/file/467774/File_7_ID_2015_All_ranks__deciles_and_scores_for_the_Indices_of_Deprivation__and_population_denominators.csv",header=TRUE)
 
@@ -43,17 +43,22 @@ PennineDep <- PennineDep %>%
   mutate(measure = str_extract(type,"Score$|Rank$|Decile$")) %>%
   mutate(index_domain = str_replace(type,"Score|Rank|Decile",""))
 
-  PennineDep$index_domain <- recode(PennineDep$index_domain,"IMD" = "Index of Multiple Deprivation",
-         "Income" = "Income Deprivation",
-         "Emp" = "Employment Deprivation",
-         "Educ" = "Education, Skills and Training Deprivation",
-         "Health" = "Health Deprivation and Disability",
-         "Crime" = "Crime",
-         "Barriers" = "Barriers to Housing and Services",
-         "LivEnv" = "Living Environment Deprivation",
-         "IDACI" = "Income Deprivation Affecting Children Index (IDACI)",
-         "IDAOPI" = "Income Deprivation Affecting Older People Index (IDAOPI)")
-  PennineDep <- select(PennineDep,lsoa11cd,index_domain,measure,value)
+  PennineDep$index_domain <- recode(PennineDep$index_domain,"IMD" = "IMD",
+         "Income" = "Income_dep",
+         "Emp" = "Emp_dep",
+         "Educ" = "Educ_dep",
+         "Health" = "Health_dep",
+         "Crime" = "Crime_dep",
+         "Barriers" = "Barriers_dep",
+         "LivEnv" = "Env_dep",
+         "IDACI" = "IDACI",
+         "IDAOPI" = "IDAOPI")
+  PennineDep <- select(PennineDep,IndID = index_domain, polycode = lsoa11cd,measure,value) %>%
+    spread(measure, value) %>% 
+    rename(score = Score, rank = Rank, decile = Decile) %>%
+    mutate(label = paste0("LSOA: ", polycode,"<br/>",
+                          "Rank: ",rank,"<br>",
+                          "Decile: ",decile)) %>%
+    select(IndID,polycode,value = decile,label)
   
-  write_csv(PennineDep,"IMD_2015_long.csv")
-
+  write_csv(PennineDep,"IMD_2015_LSOA.csv")
