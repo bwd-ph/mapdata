@@ -37,11 +37,16 @@ fingertips.switch <- function(x)
   ifelse(x == 93240,"Hosp_stay_alcohol",  
   ifelse(x == 93241,"Em_admit_hipfrac_65plus",       
   ifelse(x == 93242,"El_admit_hiprep",       
-  ifelse(x == 93243,"El_admit_kneerep",""       
-  )))))))))))))))))))))))
+  ifelse(x == 93243,"El_admit_kneerep",
+  ifelse(x == 93234,"Inc_all_cancer",
+  ifelse(x == 93235,"Inc_breast_cancer",
+  ifelse(x == 93236,"Inc_bowel_cancer",
+  ifelse(x == 93237,"Inc_lung_cancer",
+  ifelse(x == 93238,"Inc_prostate_cancer",""       
+  ))))))))))))))))))))))))))))
 }
 
-# Just selecting mortality measures 
+# Just selecting mortality measures expressed as SMRs 
 PennineMortality <- PennineLH %>% filter(`Indicator ID` %in% c(93250,93251,93252,93253,93254,93255,93256,93257,93258,93259,93260))
 PennineMortality <- PennineMortality %>% transmute(IndID = fingertips.switch(`Indicator ID`),
                                       polycode = `Area Code`,
@@ -64,7 +69,7 @@ PennineAdmissions <- PennineAdmissions %>% transmute(IndID = fingertips.switch(`
                                       polycode = `Area Code`,
                                       value = Value,
                                       label = paste0("MSOA: ",`Area Code`,"<br/>",
-                                                     ifelse(is.na(value),"","Standardised Mortality Ratio (SMR): "),
+                                                     ifelse(is.na(value),"","Standardised Admission Ratio (SAR): "),
                                                      ifelse(is.na(value),"No data for this area",round(Value,digits=1)),"<br/>",
                                                      ifelse(`Compared to England value or percentiles` ==                                                                                         "Same","Similar to England",
                                                      ifelse(`Compared to England value or percentiles` ==                                                                                         "Higher", "Higher than England",
@@ -75,6 +80,23 @@ PennineAdmissions <- PennineAdmissions %>% transmute(IndID = fingertips.switch(`
                                                      ifelse(`Compared to England value or percentiles` ==
                                                             "Worse", "Worse than England","")))))))
 
-PennineLH <- bind_rows(PennineMortality,PennineAdmissions)
+# Just selecting incidences expressed as SIRs
+PennineIncidences <- PennineLH %>% filter(`Indicator ID` %in% c(93234,93235,93236,93237,93238))
+PennineIncidences <- PennineIncidences %>% transmute(IndID = fingertips.switch(`Indicator ID`),
+                                                     polycode = `Area Code`,
+                                                     value = Value,
+                                                     label = paste0("MSOA: ",`Area Code`,"<br/>",
+                                                                    ifelse(is.na(value),"","Standardised Incidence Ratio (SIR): "),
+                                                                    ifelse(is.na(value),"No data for this area",round(Value,digits=1)),"<br/>",
+                                                                    ifelse(`Compared to England value or percentiles` ==                                                                                         "Same","Similar to England",
+                                                                    ifelse(`Compared to England value or percentiles` ==                                                                                         "Higher", "Higher than England",
+                                                                    ifelse(`Compared to England value or percentiles` ==       
+                                                                    "Lower", "Lower than England",
+                                                                    ifelse(`Compared to England value or percentiles` ==
+                                                                    "Better", "Better than England",
+                                                                    ifelse(`Compared to England value or percentiles` ==
+                                                                    "Worse", "Worse than England","")))))))
+
+PennineLH <- bind_rows(PennineMortality,PennineAdmissions,PennineIncidences)
 write_csv(PennineLH,"PennineLH_MSOA.csv")
 

@@ -41,3 +41,10 @@ Hospital Admissions,El_admit_hiprep
 Hospital Admissions,El_admit_kneerep
 Hospital Admissions,Hosp_stay_selfharm
 Hospital Admissions,Hosp_stay_alcohol
+Cancer,Death_cancer_allage
+Cancer,Death_cancer_under75
+Cancer,Inc_all_cancer
+Cancer,Inc_breast_cancer
+Cancer,Inc_bowel_cancer
+Cancer,Inc_lung_cancer
+Cancer,Inc_prostate_cancer
