@@ -57,7 +57,7 @@ PennineDep <- PennineDep %>%
     spread(measure, value) %>% 
     rename(score = Score, rank = Rank, decile = Decile) %>%
     mutate(label = paste0("LSOA: ", polycode,"<br/>",
-                          "Rank: ",rank,"<br>",
+                          "Rank: ",rank," (out of 32844)","<br>",
                           "Decile: ",decile)) %>%
     select(IndID,polycode,value = decile,label)
   
