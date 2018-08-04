@@ -20,6 +20,8 @@ Mortality,Death_CHD_allage
 Mortality,Death_CHD_under75
 Mortality,Death_stroke_allage
 Mortality,Death_resp_allage
+Mortality,LE_male
+Mortality,LE_female
 Healthy Hearts,Death_CVD_allage
 Healthy Hearts,Death_CVD_under75
 Healthy Hearts,Death_CHD_allage
@@ -48,3 +50,7 @@ Cancer,Inc_breast_cancer
 Cancer,Inc_bowel_cancer
 Cancer,Inc_lung_cancer
 Cancer,Inc_prostate_cancer
+Life & Healthy Life Expectancies,LE_male
+Life & Healthy Life Expectancies,LE_female
+Life & Healthy Life Expectancies,HLE_male
+Life & Healthy Life Expectancies,HLE_female
