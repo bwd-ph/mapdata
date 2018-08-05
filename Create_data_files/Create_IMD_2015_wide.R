@@ -61,4 +61,15 @@ PennineDep <- PennineDep %>%
                           "Decile: ",decile," (out of 10)","<br>","<br>","(Lowest ranks and deciles = most deprived)")) %>%
     select(IndID,polycode,value = decile,label)
   
-  write_csv(PennineDep,"IMD_2015_LSOA.csv")
+  # Mood and anxiety composite indicator comes from a different file, and has been manipulated in Excel to assign deciles using the PHE tool at https://fingertips.phe.org.uk/profile/guidance
+  
+  MoodDep <- read.csv("MoodAnxietyDep.csv") %>%
+    filter(Local.Authority.District.name..2013. %in% c('Blackburn with Darwen','Burnley','Hyndburn','Pendle','Ribble Valley','Rossendale')) %>%
+    add_column(IndID = "Mood_dep") %>%
+    rename(polycode = `LSOA.code..2011.`,rank=MoodRank,decile=MoodDecile) %>%
+    mutate(label = paste0("LSOA: ", polycode,"<br/>",
+                          "Rank: ",rank," (out of 32844)","<br>",
+                          "Decile: ",decile," (out of 10)","<br>","(Lowest ranks/deciles = most deprived)")) %>%
+    select(IndID,polycode,value = decile,label)
+  
+  write_csv(bind_rows(PennineDep,MoodDep),"IMD_2015_LSOA.csv")
