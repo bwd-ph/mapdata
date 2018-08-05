@@ -9,6 +9,7 @@ Indices of Deprivation,Barriers_dep
 Indices of Deprivation,Env_dep
 Indices of Deprivation,Income_dep_child
 Indices of Deprivation,Income_dep_older
+Indices of Deprivation,Mood_dep
 Mortality,Death_allcause_allage
 Mortality,Death_allcause_under65
 Mortality,Death_allcause_under75
@@ -54,3 +55,12 @@ Life & Healthy Life Expectancies,LE_male
 Life & Healthy Life Expectancies,LE_female
 Life & Healthy Life Expectancies,HLE_male
 Life & Healthy Life Expectancies,HLE_female
+Obesity,Excess_Reception
+Obesity,Obese_Reception
+Obesity,Excess_Year6
+Obesity,Obese_Year6
+Children,Excess_Reception
+Children,Obese_Reception
+Children,Excess_Year6
+Children,Obese_Year6
+Children,Income_dep_child

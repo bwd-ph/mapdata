@@ -58,7 +58,7 @@ PennineDep <- PennineDep %>%
     rename(score = Score, rank = Rank, decile = Decile) %>%
     mutate(label = paste0("LSOA: ", polycode,"<br/>",
                           "Rank: ",rank," (out of 32844)","<br>",
-                          "Decile: ",decile)) %>%
+                          "Decile: ",decile," (out of 10)","<br>","<br>","(Lowest ranks and deciles = most deprived)")) %>%
     select(IndID,polycode,value = decile,label)
   
   write_csv(PennineDep,"IMD_2015_LSOA.csv")
