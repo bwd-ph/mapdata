@@ -58,7 +58,7 @@ PennineDep <- PennineDep %>%
     rename(score = Score, rank = Rank, decile = Decile) %>%
     mutate(label = paste0("LSOA: ", polycode,"<br/>",
                           "Rank: ",rank," (out of 32844)","<br>",
-                          "Decile: ",decile," (out of 10)","<br>","<br>","(Lowest ranks and deciles = most deprived)")) %>%
+                          "Decile: ",decile," (out of 10)","<br>","(Lowest ranks/deciles = most deprived)")) %>%
     select(IndID,polycode,value = decile,label)
   
   # Mood and anxiety composite indicator comes from a different file, and has been manipulated in Excel to assign deciles using the PHE tool at https://fingertips.phe.org.uk/profile/guidance
