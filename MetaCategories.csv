@@ -32,18 +32,23 @@ Healthy Hearts,Em_admit_CHD
 Healthy Hearts,El_admit_CHD
 Healthy Hearts,Em_admit_stroke
 Healthy Hearts,Em_admit_MI
-Hospital Admissions,Em_admit_allcause
-Hospital Admissions,El_admit_allcause
-Hospital Admissions,Em_admit_CHD
-Hospital Admissions,El_admit_CHD
-Hospital Admissions,Em_admit_stroke
-Hospital Admissions,Em_admit_MI
-Hospital Admissions,Em_admit_COPD
-Hospital Admissions,Em_admit_hipfrac_65plus
-Hospital Admissions,El_admit_hiprep
-Hospital Admissions,El_admit_kneerep
-Hospital Admissions,Hosp_stay_selfharm
-Hospital Admissions,Hosp_stay_alcohol
+Hospital Admissions & Attendances,Em_admit_allcause
+Hospital Admissions & Attendances,El_admit_allcause
+Hospital Admissions & Attendances,Em_admit_CHD
+Hospital Admissions & Attendances,El_admit_CHD
+Hospital Admissions & Attendances,Em_admit_stroke
+Hospital Admissions & Attendances,Em_admit_MI
+Hospital Admissions & Attendances,Em_admit_COPD
+Hospital Admissions & Attendances,Em_admit_hipfrac_65plus
+Hospital Admissions & Attendances,El_admit_hiprep
+Hospital Admissions & Attendances,El_admit_kneerep
+Hospital Admissions & Attendances,Hosp_stay_selfharm
+Hospital Admissions & Attendances,Hosp_stay_alcohol
+Hospital Admissions & Attendances,Em_admit_under5
+Hospital Admissions & Attendances,Injury_admit_under5
+Hospital Admissions & Attendances,Injury_admit_under15
+Hospital Admissions & Attendances,Injury_admit_15to24
+Hospital Admissions & Attendances,AE_attend_under5
 Cancer,Death_cancer_allage
 Cancer,Death_cancer_under75
 Cancer,Inc_all_cancer
@@ -59,8 +64,13 @@ Obesity,Excess_Reception
 Obesity,Obese_Reception
 Obesity,Excess_Year6
 Obesity,Obese_Year6
-Children,Excess_Reception
-Children,Obese_Reception
-Children,Excess_Year6
-Children,Obese_Year6
-Children,Income_dep_child
+Children and Young People,Excess_Reception
+Children and Young People,Obese_Reception
+Children and Young People,Excess_Year6
+Children and Young People,Obese_Year6
+Children and Young People,Income_dep_child
+Children and Young People,Em_admit_under5
+Children and Young People,Injury_admit_under5
+Children and Young People,Injury_admit_under15
+Children and Young People,Injury_admit_15to24
+Children and Young People,AE_attend_under5

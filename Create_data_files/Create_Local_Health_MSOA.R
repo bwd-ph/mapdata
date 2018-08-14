@@ -47,11 +47,16 @@ fingertips.switch <- function(x,y=NULL)
   ifelse(x == 93236,"Inc_bowel_cancer",
   ifelse(x == 93237,"Inc_lung_cancer",
   ifelse(x == 93238,"Inc_prostate_cancer",
+  ifelse(x == 93115,"Em_admit_under5",
+  ifelse(x == 93114,"Injury_admit_under5",
+  ifelse(x == 93219,"Injury_admit_under15",
+  ifelse(x == 93224,"Injury_admit_15to24",
+  ifelse(x == 93116,"AE_attend_under5",
   ifelse(x == 93283 & y == "Male","LE_male",
   ifelse(x == 93283 & y == "Female","LE_female",
   ifelse(x == 93298 & y == "Male","HLE_male",
   ifelse(x == 93298 & y == "Female","HLE_female",""       
-  ))))))))))))))))))))))))))))))))
+  )))))))))))))))))))))))))))))))))))))
 }
 
 # Just selecting mortality measures expressed as SMRs 
@@ -123,11 +128,33 @@ PennineExpectancies <- PennineExpectancies %>% transmute(IndID = fingertips.swit
                                                     ifelse(`Compared to England value or percentiles` ==
                                                        "Worse", "Worse than England","")))))))
 
-# If we have data for the chosen LSOA, append the England average (stored in metadata as 'DivergePoint') to the label for comparison
+# If we have data for the chosen MSOA, append the England average (stored in metadata as 'DivergePoint') to the label for comparison
 PennineExpectancies <- PennineExpectancies %>% left_join(metadata,by = "IndID") %>%
               mutate(label2 = ifelse(str_detect(label,"England$"),paste0(label," (= ",round(DivergePoint,digits=1),")"),label)) %>%
               select(IndID,polycode,value,label=label2)
 
-PennineLH <- bind_rows(PennineMortality,PennineAdmissions,PennineIncidences,PennineExpectancies)
+# Just selecting child admissions and attendances
+PennineChildAdmit <- PennineLH %>% filter(`Indicator ID` %in% c(93115,93219,93114,93224,93116))
+PennineChildAdmit <- PennineChildAdmit %>% transmute(IndID = fingertips.switch(`Indicator ID`),
+                                      polycode = `Area Code`,
+                                      value = Value,
+                                      label = paste0("MSOA: ",`Area Code`,"<br/>",
+                                                    ifelse(is.na(value),"",
+                                                    ifelse(`Indicator ID` %in% c(93115,93116),"Crude rate per 1000: ","Crude rate per 10,000: ")),
+                                                    ifelse(is.na(value),"No data for this area",round(Value,digits=1)),"<br/>",
+                                                    ifelse(`Compared to England value or percentiles` ==                                                                                                  "Same","Similar to England",
+                                                    ifelse(`Compared to England value or percentiles` ==                                                                                                  "Higher", "Higher than England",
+                                                    ifelse(`Compared to England value or percentiles` ==       
+                                                        "Lower", "Lower than England",
+                                                    ifelse(`Compared to England value or percentiles` ==
+                                                        "Better", "Better than England",
+                                                    ifelse(`Compared to England value or percentiles` ==
+                                                        "Worse", "Worse than England","")))))))
+# If we have data for the chosen MSOA, append the England average (stored in metadata as 'DivergePoint') to the label for comparison
+PennineChildAdmit <- PennineChildAdmit %>% left_join(metadata,by = "IndID") %>%
+  mutate(label2 = ifelse(str_detect(label,"England$"),paste0(label," (= ",round(DivergePoint,digits=1),")"),label)) %>%
+  select(IndID,polycode,value,label=label2)
+
+PennineLH <- bind_rows(PennineMortality,PennineAdmissions,PennineIncidences,PennineExpectancies,PennineChildAdmit)
 write_csv(PennineLH,"PennineLH_MSOA.csv")
 
