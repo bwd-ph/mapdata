@@ -20,27 +20,27 @@ PennineEthnicity <- PennineEthnicity %>% mutate(IndianPC = Indian/All*100,Pakist
 
 Indian <- PennineEthnicity %>% select(polycode,Indian,IndianPC) %>% add_column(IndID = "PC_Indian") %>%
   mutate(label = paste0("LSOA: ",polycode,"<br/>",
-              "Population of Indian ethnicity = ",round(IndianPC,digits=1),"% (",Indian," people)","<br/>","<em>(2011 Census results)</em>")) %>%
+              "Population of Indian ethnicity = ",round(IndianPC,digits=1),"% (",Indian,ifelse(Indian == 1," person)"," people)"),"<br/>","<em>(2011 Census results)</em>")) %>%
   select(IndID,polycode,value = IndianPC,label)
 
 Pakistani <- PennineEthnicity %>% select(polycode,Pakistani,PakistaniPC) %>% add_column(IndID = "PC_Pakistani") %>%
   mutate(label = paste0("LSOA: ",polycode,"<br/>",
-                        "Population of Pakistani ethnicity = ",round(PakistaniPC,digits=1),"% (",Pakistani," people)","<br/>","<em>(2011 Census results)</em>")) %>%
+                        "Population of Pakistani ethnicity = ",round(PakistaniPC,digits=1),"% (",Pakistani,ifelse(Pakistani == 1," person)"," people)"),"<br/>","<em>(2011 Census results)</em>")) %>%
   select(IndID,polycode,value = PakistaniPC,label)
 
 Bangladeshi <- PennineEthnicity %>% select(polycode,Bangladeshi,BangladeshiPC) %>% add_column(IndID = "PC_Bangladeshi") %>%
   mutate(label = paste0("LSOA: ",polycode,"<br/>",
-                        "Population of Bangladeshi ethnicity = ",round(BangladeshiPC,digits=1),"% (",Bangladeshi," people)","<br/>","<em>(2011 Census results)</em>")) %>%
+                        "Population of Bangladeshi ethnicity = ",round(BangladeshiPC,digits=1),"% (",Bangladeshi,ifelse(Bangladeshi == 1," person)"," people)"),"<br/>","<em>(2011 Census results)</em>")) %>%
   select(IndID,polycode,value = BangladeshiPC,label)
 
 White <- PennineEthnicity %>% select(polycode,White,WhitePC) %>% add_column(IndID = "PC_White") %>%
   mutate(label = paste0("LSOA: ",polycode,"<br/>",
-                        "Population of White ethnicity = ",round(WhitePC,digits=1),"% (",White," people)","<br/>","<em>(2011 Census results)</em>")) %>%
+                        "Population of White ethnicity = ",round(WhitePC,digits=1),"% (",White,ifelse(White == 1," person)"," people)"),"<br/>","<em>(2011 Census results)</em>")) %>%
   select(IndID,polycode,value = WhitePC,label)
 
 Other <- PennineEthnicity %>% select(polycode,Other,OtherPC) %>% add_column(IndID = "PC_Mixed_Other") %>%
   mutate(label = paste0("LSOA: ",polycode,"<br/>",
-                        "Population of Mixed or Other ethnicity = ",round(OtherPC,digits=1),"% (",Other," people)","<br/>","<em>(2011 Census results)</em>")) %>%
+                        "Population of Mixed or Other ethnicity = ",round(OtherPC,digits=1),"% (",Other,ifelse(Other == 1," person)"," people)"),"<br/>","<em>(2011 Census results)</em>")) %>%
   select(IndID,polycode,value = OtherPC,label)
 
 PennineEthnicity <- bind_rows(White,Indian, Pakistani, Bangladeshi, Other)
@@ -54,7 +54,7 @@ PennineLanguage <- PennineLanguage %>% mutate(BadOrNone = `Main language is not 
 EnglandLanguage <- PennineLanguage %>% filter(GEOGRAPHY_CODE == 'E92000001')
 PennineLanguage <- PennineLanguage %>% filter(GEOGRAPHY_CODE != 'E92000001') %>% add_column(IndID = "PC_badEnglish") %>%
   mutate(label = paste0("LSOA: ",GEOGRAPHY_CODE,"<br/>",
-                        "Speak English 'not well' or not at all: ",round(BadorNonePC,digits=1),"% (",BadOrNone," people)","<br/>","<em>(2011 Census results, age 3+ only)</em>")) %>%
+                        "Speak English 'not well' or not at all: ",round(BadorNonePC,digits=1),"% (",BadOrNone,ifelse(BadOrNone == 1," person)"," people)"),"<br/>","<em>(2011 Census results, age 3+ only)</em>")) %>%
   select(IndID,polycode = GEOGRAPHY_CODE,value = BadorNonePC,label)
 
 PennineNomis <- bind_rows(PennineEthnicity,PennineLanguage)
