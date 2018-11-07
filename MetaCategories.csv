@@ -79,9 +79,15 @@ Population,PC_Indian
 Population,PC_Pakistani
 Population,PC_Bangladeshi
 Population,PC_Mixed_Other
-2011 Census,PC_White
-2011 Census,PC_Indian
-2011 Census,PC_Pakistani
-2011 Census,PC_Bangladeshi
-2011 Census,PC_Mixed_Other
-2011 Census,PC_badEnglish
+Census,PC_White
+Census,PC_Indian
+Census,PC_Pakistani
+Census,PC_Bangladeshi
+Census,PC_Mixed_Other
+Census,PC_badEnglish
+Benefits,ESA_total
+Benefits,ESA_MH
+Benefits,ESA_Nervous
+Benefits,ESA_RespCirc
+Benefits,ESA_MSK
+Benefits,ESA_Other
