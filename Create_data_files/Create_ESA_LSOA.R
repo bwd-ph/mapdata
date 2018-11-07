@@ -59,12 +59,13 @@ PennineESA <- PennineESA %>% rename(polycode = `2001LSOA`) %>% bind_rows(NewHynd
 pop <- bind_rows(pop,cornerpop)
 
 # Join with population denominator on polycode
-PennineESA <- left_join(PennineESA,pop)
+PennineESA <- left_join(PennineESA,pop) 
 
 # Convert to long format
 PennineESAlong <- PennineESA %>% rename(ESA_total = Total, ESA_MH = Mental, ESA_Nervous = Nervous,
                                         ESA_RespCirc = RespCirc,ESA_MSK = Musc,ESA_Other = Other) %>%
         gather(key = IndID, value = Count,ESA_total,ESA_MH,ESA_Nervous,ESA_RespCirc,ESA_MSK,ESA_Other) %>%
+        left_join(select(metadata,IndID,DivergePoint),by = "IndID") %>% rename(England = DivergePoint) %>%
         mutate(value = Count/`16-64`*100, 
                label = paste0("LSOA: ",polycode,"<br/>",
               "In February 2018 there were<br/>",Count," people claiming ESA<br/>",
@@ -73,11 +74,12 @@ PennineESAlong <- PennineESA %>% rename(ESA_total = Total, ESA_MH = Mental, ESA_
                ifelse(IndID == "ESA_RespCirc","because of Respiratory or Circulatory disorders",
                ifelse(IndID == "ESA_MSK","because of Musculoskeletal disorders",
                ifelse(IndID == "ESA_Other","because of other conditions","for any reason"))))),",<br/>which is approximately ",
-               round(value,digits=1),"%<br/>of the local 16-64 population")) %>%
-        select(IndID,polycode,value,label)
+        round(value,digits=1),"%<br/>of the local 16-64 population<br/>(England average = ",
+        round(England,digits=1),"%)")) %>%
+        select(IndID,polycode,value,label) 
 
 # Deal with SE corner of BwD
-PennineESAlong <- PennineESAlong %>% mutate(label = ifelse(polycode == "BwDcorner",paste0("Boundary changes mean it is not<br/>possible to calculate ESA rates<br/>for the two LSOAs in the SE corner<br/>of Blackburn with Darwen individually.<br/>For these two LSOAs <strong>combined</strong>, the results are as follows:<br/><br/>",str_sub(label,start=15)),label))
+PennineESAlong <- PennineESAlong %>% mutate(label = ifelse(polycode == "BwDcorner",paste0("Boundary changes mean it is not<br/>possible to calculate ESA rates<br/>for the two LSOAs in the SE corner<br/>of Blackburn with Darwen individually.<br/>For these two LSOAs <strong>combined</strong>, the results are as follows:<br/><br/>",str_sub(label,start=16)),label))
 
 firstNewLSOA <- filter(PennineESAlong,polycode == "BwDcorner") %>% mutate(polycode = "E01032485")
 secondNewLSOA <- firstNewLSOA %>% mutate(polycode = "E01032486")
