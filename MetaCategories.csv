@@ -11,37 +11,30 @@ Indices of Deprivation,Income_dep_child
 Indices of Deprivation,Income_dep_older
 Indices of Deprivation,Mood_dep
 Mortality,Death_allcause_allage
-Mortality,Death_allcause_under65
 Mortality,Death_allcause_under75
 Mortality,Death_cancer_allage
 Mortality,Death_cancer_under75
 Mortality,Death_CVD_allage
 Mortality,Death_CVD_under75
 Mortality,Death_CHD_allage
-Mortality,Death_CHD_under75
 Mortality,Death_stroke_allage
 Mortality,Death_resp_allage
+Mortality,Death_preventable_allage
 Mortality,LE_male
 Mortality,LE_female
 Healthy Hearts,Death_CVD_allage
 Healthy Hearts,Death_CVD_under75
 Healthy Hearts,Death_CHD_allage
-Healthy Hearts,Death_CHD_under75
 Healthy Hearts,Death_stroke_allage
 Healthy Hearts,Em_admit_CHD
-Healthy Hearts,El_admit_CHD
 Healthy Hearts,Em_admit_stroke
 Healthy Hearts,Em_admit_MI
 Hospital Admissions & Attendances,Em_admit_allcause
-Hospital Admissions & Attendances,El_admit_allcause
 Hospital Admissions & Attendances,Em_admit_CHD
-Hospital Admissions & Attendances,El_admit_CHD
 Hospital Admissions & Attendances,Em_admit_stroke
 Hospital Admissions & Attendances,Em_admit_MI
 Hospital Admissions & Attendances,Em_admit_COPD
 Hospital Admissions & Attendances,Em_admit_hipfrac_65plus
-Hospital Admissions & Attendances,El_admit_hiprep
-Hospital Admissions & Attendances,El_admit_kneerep
 Hospital Admissions & Attendances,Hosp_stay_selfharm
 Hospital Admissions & Attendances,Hosp_stay_alcohol
 Hospital Admissions & Attendances,Em_admit_under5

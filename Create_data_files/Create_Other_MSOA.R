@@ -1,6 +1,9 @@
-# Written when the MSOA-level NCMP data up to 2014/15-2016/17 was available at 
+# Originally written when the MSOA-level NCMP data up to 2014/15-2016/17 was available at 
 # https://www.gov.uk/government/statistics/child-obesity-and-excess-weight-small-area-level-data
 # but not yet on LocalHealth
+
+# Amended 13/6/19 when the MSOA-level NCMP data was available up to 2015/16-2017/18
+# (Was also by then available on LocalHealth, but didn't see the point of making fundamental changes)
 
 library(tidyverse)
 library(sqldf)
@@ -13,15 +16,19 @@ setwd('C:/Users/user/Documents/BwD work/Interactive Mapping/mapdata')
 # because we need to take the England average from the 'DivergePoint' column
 metadata <- read_csv("Metadata.csv")
 
-# Reading NCMP data. NB - there are more years of obesity data than of excess weight data (goes up to column AM rather than column AC)
-excessRecep <- read_excel("NCMP_data_MSOA_update_2018.xlsx",sheet=2,range = "A3:AC6794") %>% add_column(IndID = "Excess_Reception") %>%
-  select(IndID,`LA name`,polycode =`MSOA code`,value = `%__4`,LCI = `LCI__4`,UCI = `UCI__4`)
-obeseRecep <- read_excel("NCMP_data_MSOA_update_2018.xlsx",sheet=3,range = "A3:AM6794") %>% add_column(IndID = "Obese_Reception") %>%
-  select(IndID,`LA name`,polycode =`MSOA code`,value = `%__6`,LCI = `LCI__6`,UCI = `UCI__6`)
-excessYear6 <- read_excel("NCMP_data_MSOA_update_2018.xlsx",sheet=4,range = "A3:AC6794") %>% add_column(IndID = "Excess_Year6") %>%
-  select(IndID,`LA name`,polycode =`MSOA code`,value = `%__4`,LCI = `LCI__4`,UCI = `UCI__4`)
-obeseYear6 <- read_excel("NCMP_data_MSOA_update_2018.xlsx",sheet=5,range = "A3:AM6794") %>% add_column(IndID = "Obese_Year6") %>%
-  select(IndID,`LA name`,polycode =`MSOA code`,value = `%__6`,LCI = `LCI__6`,UCI = `UCI__6`)
+# Reading NCMP data. NB - there are more years (i.e. columns) of obesity data than of excess weight data
+
+# NB - data now supplied as a .ods file, but read_ods is SLOW!!! 
+# So have downloaded the file and then saved it in Excel format.
+
+excessRecep <- read_excel("NCMP_data_MSOA_update_2019.xlsx",sheet=2,skip=2) %>% add_column(IndID = "Excess_Reception") %>%
+  select(IndID,`LA name`,polycode =`MSOA code`,value = `%__5`,LCI = `LCI__5`,UCI = `UCI__5`)
+obeseRecep <- read_excel("NCMP_data_MSOA_update_2019.xlsx",sheet=3,skip=2) %>% add_column(IndID = "Obese_Reception") %>%
+  select(IndID,`LA name`,polycode =`MSOA code`,value = `%__7`,LCI = `LCI__7`,UCI = `UCI__7`)
+excessYear6 <- read_excel("NCMP_data_MSOA_update_2019.xlsx",sheet=4,skip=2) %>% add_column(IndID = "Excess_Year6") %>%
+  select(IndID,`LA name`,polycode =`MSOA code`,value = `%__5`,LCI = `LCI__5`,UCI = `UCI__5`)
+obeseYear6 <- read_excel("NCMP_data_MSOA_update_2019.xlsx",sheet=5,skip=2) %>% add_column(IndID = "Obese_Year6") %>%
+  select(IndID,`LA name`,polycode =`MSOA code`,value = `%__7`,LCI = `LCI__7`,UCI = `UCI__7`)
 NCMP <- bind_rows(excessRecep,obeseRecep,excessYear6,obeseYear6) 
 PennineNCMP <- NCMP %>% filter(`LA name` %in% c('Blackburn with Darwen','Burnley','Hyndburn','Pendle','Ribble Valley','Rossendale')) %>%
   mutate(value = as.numeric(value),LCI = as.numeric(LCI),UCI = as.numeric(UCI))
