@@ -60,7 +60,7 @@ PennineMortality <- PennineMortality %>% transmute(IndID = fingertips.switch(`In
                                       label = paste0("MSOA: ",`Area.Code`,"<br/>",
                                                      ifelse(is.na(value),"","Standardised Mortality Ratio (SMR): "),
                                                      ifelse(is.na(value),"No data for this area",round(Value,digits=1)),"<br/>",
-                                                     ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                                    "Same","Similar to England (= 100)",
+                                                     ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                                    "Similar","Similar to England (= 100)",
                                                      ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                                    "Higher", "Higher than England (= 100)",
                                                      ifelse(`Compared.to.England.value.or.percentiles` ==       
                                                              "Lower", "Lower than England (= 100)",
@@ -77,7 +77,7 @@ PennineAdmissions <- PennineAdmissions %>% transmute(IndID = fingertips.switch(`
                                       label = paste0("MSOA: ",`Area.Code`,"<br/>",
                                                      ifelse(is.na(value),"","Standardised Admission Ratio (SAR): "),
                                                      ifelse(is.na(value),"No data for this area",round(Value,digits=1)),"<br/>",
-                                                     ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                                    "Same","Similar to England (= 100)",
+                                                     ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                                    "Similar","Similar to England (= 100)",
                                                      ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                                     "Higher", "Higher than England (= 100)",
                                                      ifelse(`Compared.to.England.value.or.percentiles` ==       
                                                              "Lower", "Lower than England (= 100)",
@@ -94,7 +94,7 @@ PennineIncidences <- PennineIncidences %>% transmute(IndID = fingertips.switch(`
                                                      label = paste0("MSOA: ",`Area.Code`,"<br/>",
                                                      ifelse(is.na(value),"","Standardised Incidence Ratio (SIR): "),
                                                      ifelse(is.na(value),"No data for this area",round(Value,digits=1)),"<br/>",
-                                                     ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                      "Same","Similar to England (= 100)",
+                                                     ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                      "Similar","Similar to England (= 100)",
                                                      ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                      "Higher", "Higher than England (= 100)",
                                                      ifelse(`Compared.to.England.value.or.percentiles` ==       
                                                           "Lower", "Lower than England (= 100)",
@@ -112,7 +112,7 @@ PennineExpectancies <- PennineExpectancies %>% transmute(IndID = fingertips.swit
                                                     ifelse(is.na(value),"",
                                                     ifelse(`Indicator.ID` == 93283,"Life Expectancy: ","Healthy Life Expectancy: ")),
                                                     ifelse(is.na(value),"No data for this area",round(Value,digits=1)),"<br/>",
-                                                    ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                      "Same","Similar to England",
+                                                    ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                      "Similar","Similar to England",
                                                     ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                    "Higher", "Higher than England",
                                                     ifelse(`Compared.to.England.value.or.percentiles` ==       
                                                        "Lower", "Lower than England",
@@ -135,7 +135,7 @@ PennineChildAdmit <- PennineChildAdmit %>% transmute(IndID = fingertips.switch(`
                                                     ifelse(is.na(value),"",
                                                     ifelse(`Indicator.ID` %in% c(93115,93116),"Crude rate per 1000: ","Crude rate per 10,000: ")),
                                                     ifelse(is.na(value),"No data for this area",round(Value,digits=1)),"<br/>",
-                                                    ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                                  "Same","Similar to England",
+                                                    ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                                  "Similar","Similar to England",
                                                     ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                                  "Higher", "Higher than England",
                                                     ifelse(`Compared.to.England.value.or.percentiles` ==       
                                                         "Lower", "Lower than England",
