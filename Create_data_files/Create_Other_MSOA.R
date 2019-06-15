@@ -1,3 +1,12 @@
+library(tidyverse)
+library(sqldf)
+library(stringr)
+library(readxl)
+library(readr)
+
+##################################################################
+# Child obesity data (NCMP) 
+##################################################################
 # Originally written when the MSOA-level NCMP data up to 2014/15-2016/17 was available at 
 # https://www.gov.uk/government/statistics/child-obesity-and-excess-weight-small-area-level-data
 # but not yet on LocalHealth
@@ -5,10 +14,7 @@
 # Amended 13/6/19 when the MSOA-level NCMP data was available up to 2015/16-2017/18
 # (Was also by then available on LocalHealth, but didn't see the point of making fundamental changes)
 
-library(tidyverse)
-library(sqldf)
-library(stringr)
-library(readxl)
+
 
 setwd('C:/Users/user/Documents/BwD work/Interactive Mapping/mapdata')
 
@@ -47,5 +53,38 @@ PennineNCMP <- PennineNCMP %>% left_join(metadata,by = "IndID") %>%
                         ifelse(!is.na(LCI) & !is.na(UCI),paste0("Similar to England (= ",round(England,digits=1),"%)"),""))))) %>%
   select(IndID,polycode,value,label)
 
-write_csv(PennineNCMP,"PennineNCMP_MSOA.csv")
+# write_csv(PennineNCMP,"PennineNCMP_MSOA.csv")
 
+#################################################################################################
+# Now reading the ONS MSOA-level modelled income estimates (Total Annual Household Income only) #
+#################################################################################################
+
+# NB - not using read.csv because it doesn't handle the commas in the amounts of money properly
+
+income <- read_csv("https://www.ons.gov.uk/file?uri=/employmentandlabourmarket/peopleinwork/earningsandworkinghours/datasets/smallareaincomeestimatesformiddlelayersuperoutputareasenglandandwales/financialyearending2016/1totalannualincome.csv",skip=3,n_max=7201,
+                   col_names = c("MSOA code","MSOA name","LA code","LA name","Region code","Region name",
+                                 "TotIncome","X8","X9","X10","X11","X12","X13","X14"))
+income <- income %>%
+  select(`MSOA code`,`MSOA name`,`LA code`,`LA name`,`Region code`,`Region name`,`TotIncome`) %>%
+  filter(`Region name` != "Wales")
+
+income$rank <- as.integer(floor(rank(as.numeric(income$TotIncome))))
+income$decile <- pmin(((income$rank-1)%/%679)+1,10)
+income$decile <- factor(income$decile)
+PennineIncome <- income %>% filter(`LA name` %in% c('Blackburn with Darwen','Burnley','Hyndburn','Pendle','Ribble Valley','Rossendale')) %>% add_column(IndID = "Tot_annual_income")
+
+PennineIncome <- PennineIncome %>%
+  mutate(label = paste0("MSOA: ", `MSOA code`,"<br/>",
+                        "Household Income: £",TotIncome,"<br>",
+                        "Rank: ",rank," (out of 6791)","<br>",
+                        "Decile: ",decile," (out of 10)","<br>","(Lowest ranks/deciles = lowest income)")) %>%
+  select(IndID,polycode =`MSOA code`,value = decile,label)
+
+# write_excel_csv(PennineIncome,'Income_MSOA.csv')
+
+#######################################################
+# Write all the above to single PennineOther_MSOA.csv file
+#######################################################
+
+PennineOther <- rbind(PennineNCMP,PennineIncome)
+write_excel_csv(PennineOther,'PennineOther_MSOA.csv')
