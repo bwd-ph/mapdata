@@ -78,7 +78,7 @@ Census,PC_Indian
 Census,PC_Pakistani
 Census,PC_Bangladeshi
 Census,PC_Mixed_Other
-Population,PC_BME
+Census,PC_BME
 Census,PC_badEnglish
 Benefits,ESA_total
 Benefits,ESA_MH
