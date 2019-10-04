@@ -32,8 +32,8 @@ HousePrices <- HousePrices %>%
   left_join(metadata, by = "IndID") %>%
   select(IndID,polycode,value,England=DivergePoint) %>%
   mutate(label = paste0("LSOA: ",polycode,"<br/>",
-                        "Median house price for","<br/>",latestyear,"<br/>",
-                        ifelse(is.na(value),"N/A (fewer than 5 sales)",paste0("£",value)),"<br/>",
+                        "Median house price for","<br/>",latestyear,": ",
+                        ifelse(is.na(value),"<br/>N/A (fewer than 5 sales)",paste0("£",value)),"<br/>",
                         "(England average = £",England,")")) %>%
   select(IndID,polycode,value,label)
 
