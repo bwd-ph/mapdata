@@ -9,6 +9,7 @@ setwd('C:/Users/user/Documents/BwD work/Interactive Mapping/mapdata')
 #  Read metadata
 metadata <- read_csv("Metadata.csv")
 
+################ Fuel Poverty ##################
 PennineFuelPov <- read_excel("Fuel_poverty_sub-regional_tables_2019.xlsx",sheet="Table 3",range="A3:H32847",col_names = TRUE) %>% filter(`LA Name` %in% c('Blackburn with Darwen','Burnley','Hyndburn','Pendle','Ribble Valley','Rossendale')) %>%
 add_column(IndID = "Fuel_Poverty")
 
@@ -20,6 +21,21 @@ PennineFuelPov <- PennineFuelPov %>% left_join(metadata,by = "IndID") %>%
                         "which is ",paste0(round(value,digits=1),"% of all households<br/>"),
                         "(England average = ",paste0(round(England,digits=1),"%)")))  %>%
   select(IndID,polycode,value,label)
-write_csv(PennineFuelPov,"PennineOther_LSOA.csv")
+# write_csv(PennineFuelPov,"PennineOther_LSOA.csv")
 
+################# House Prices #################
+HousePrices <- read_excel("hpssadataset46medianpricepaidforresidentialpropertiesbylsoa.xls", sheet = 'Data', range = "A6:CT34759", na = ":") %>% filter(`Local authority name` %in% c('Blackburn with Darwen','Burnley','Hyndburn','Pendle','Ribble Valley','Rossendale')) 
+latestyear <- tail(names(HousePrices),1) # i.e. name of last column, something like 'Year ending Mar 2019'
+HousePrices <- HousePrices %>%
+  select(polycode = `LSOA code`,value = tail(names(.), 1)) %>% # i.e. take value from last column
+  add_column(IndID = "House_Prices") %>%
+  left_join(metadata, by = "IndID") %>%
+  select(IndID,polycode,value,England=DivergePoint) %>%
+  mutate(label = paste0("LSOA: ",polycode,"<br/>",
+                        "Median house price for","<br/>",latestyear,"<br/>",
+                        ifelse(is.na(value),"N/A (fewer than 5 sales)",paste0("£",value)),"<br/>",
+                        "(England average = £",England,")")) %>%
+  select(IndID,polycode,value,label)
 
+PennineOther <- bind_rows(PennineFuelPov,HousePrices)
+write_csv(PennineOther,"PennineOther_LSOA.csv")
