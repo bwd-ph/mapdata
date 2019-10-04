@@ -82,9 +82,26 @@ PennineIncome <- PennineIncome %>%
 
 # write_excel_csv(PennineIncome,'Income_MSOA.csv')
 
+###############################################
+# Now reading the ONS MSOA-level house prices #
+###############################################
+
+HousePrices <- read_excel("hpssadataset2medianpricepaidbymsoa.xls", sheet = '1a', range = "A6:CT7207", na = ":") %>% filter(`Local authority name` %in% c('Blackburn with Darwen','Burnley','Hyndburn','Pendle','Ribble Valley','Rossendale')) 
+latestyear <- tail(names(HousePrices),1) # i.e. name of last column, something like 'Year ending Mar 2019'
+HousePrices <- HousePrices %>%
+  select(polycode = `MSOA code`,value = tail(names(.), 1)) %>% # i.e. take value from last column
+  add_column(IndID = "House_Prices_MSOA") %>%
+  left_join(metadata, by = "IndID") %>%
+  select(IndID,polycode,value,England=DivergePoint) %>%
+  mutate(label = paste0("MSOA: ",polycode,"<br/>",
+                        "Median house price for","<br/>",latestyear,": ",
+                        ifelse(is.na(value),"<br/>N/A (fewer than 5 sales)",paste0("£",value)),"<br/>",
+                        "(England average = £",England,")")) %>%
+  select(IndID,polycode,value,label)
+
 #######################################################
 # Write all the above to single PennineOther_MSOA.csv file
 #######################################################
 
-PennineOther <- rbind(PennineNCMP,PennineIncome)
+PennineOther <- rbind(PennineNCMP,PennineIncome, HousePrices)
 write_excel_csv(PennineOther,'PennineOther_MSOA.csv')
