@@ -24,17 +24,20 @@ PennineFuelPov <- PennineFuelPov %>% left_join(metadata,by = "IndID") %>%
 # write_csv(PennineFuelPov,"PennineOther_LSOA.csv")
 
 ################# House Prices #################
+options(scipen = 999) # don't want scientific notation
 HousePrices <- read_excel("hpssadataset46medianpricepaidforresidentialpropertiesbylsoa.xls", sheet = 'Data', range = "A6:CT34759", na = ":") %>% filter(`Local authority name` %in% c('Blackburn with Darwen','Burnley','Hyndburn','Pendle','Ribble Valley','Rossendale')) 
 latestyear <- tail(names(HousePrices),1) # i.e. name of last column, something like 'Year ending Mar 2019'
 HousePrices <- HousePrices %>%
   select(polycode = `LSOA code`,value = tail(names(.), 1)) %>% # i.e. take value from last column
-  add_column(IndID = "House_Prices") %>%
+  add_column(IndID = "House_Prices_LSOA") %>%
   left_join(metadata, by = "IndID") %>%
   select(IndID,polycode,value,England=DivergePoint) %>%
   mutate(label = paste0("LSOA: ",polycode,"<br/>",
                         "Median house price for","<br/>",latestyear,": ",
-                        ifelse(is.na(value),"<br/>N/A (fewer than 5 sales)",paste0("£",value)),"<br/>",
-                        "(England average = £",England,")")) %>%
+                        ifelse(is.na(value),"<br/>N/A (fewer than 5 sales)",
+                               paste0("£",prettyNum(value,format = "g",decimal.mark = ".",big.mark = ",",drop0trailing = TRUE))),"<br/>",
+                        "(England average = £",prettyNum(England*1000,format = "g",decimal.mark = ".",big.mark = ",",drop0trailing = TRUE),")")) %>%
+  mutate(value = round(value/1000)) %>%
   select(IndID,polycode,value,label)
 
 PennineOther <- bind_rows(PennineFuelPov,HousePrices)
