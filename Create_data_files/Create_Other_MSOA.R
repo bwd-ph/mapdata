@@ -85,7 +85,7 @@ PennineIncome <- PennineIncome %>%
 ###############################################
 # Now reading the ONS MSOA-level house prices #
 ###############################################
-
+options(scipen = 999) # don't want scientific notation
 HousePrices <- read_excel("hpssadataset2medianpricepaidbymsoa.xls", sheet = '1a', range = "A6:CT7207", na = ":") %>% filter(`Local authority name` %in% c('Blackburn with Darwen','Burnley','Hyndburn','Pendle','Ribble Valley','Rossendale')) 
 latestyear <- tail(names(HousePrices),1) # i.e. name of last column, something like 'Year ending Mar 2019'
 HousePrices <- HousePrices %>%
@@ -95,8 +95,9 @@ HousePrices <- HousePrices %>%
   select(IndID,polycode,value,England=DivergePoint) %>%
   mutate(label = paste0("MSOA: ",polycode,"<br/>",
                         "Median house price for","<br/>",latestyear,": ",
-                        ifelse(is.na(value),"<br/>N/A (fewer than 5 sales)",paste0("£",value)),"<br/>",
-                        "(England average = £",England,")")) %>%
+                        ifelse(is.na(value),"<br/>N/A (fewer than 5 sales)",
+                               paste0("£",prettyNum(value,format = "g",decimal.mark = ".",big.mark = ",",drop0trailing = TRUE))),"<br/>",
+                        "(England average = £",prettyNum(England,format = "g",decimal.mark = ".",big.mark = ",",drop0trailing = TRUE),")")) %>%
   select(IndID,polycode,value,label)
 
 #######################################################
