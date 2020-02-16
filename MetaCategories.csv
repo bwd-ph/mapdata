@@ -71,14 +71,14 @@ Population,PC_White
 Population,PC_Indian
 Population,PC_Pakistani
 Population,PC_Bangladeshi
-Population,PC_SouthAsian
+Population,PC_SAsian
 Population,PC_Mixed_Other
 Population,PC_BME
 Census,PC_White
 Census,PC_Indian
 Census,PC_Pakistani
 Census,PC_Bangladeshi
-Census,PC_SouthAsian
+Census,PC_SAsian
 Census,PC_Mixed_Other
 Census,PC_BME
 Census,PC_badEnglish
