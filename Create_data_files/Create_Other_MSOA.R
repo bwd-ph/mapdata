@@ -14,6 +14,8 @@ library(readr)
 # Amended 13/6/19 when the MSOA-level NCMP data was available up to 2015/16-2017/18
 # (Was also by then available on LocalHealth, but didn't see the point of making fundamental changes)
 
+# Updated again 21/6/20 to reflect the fact that the only downloadable file now seems to be the one available from Fingertips
+
 
 
 setwd('C:/Users/user/Documents/BwD work/Interactive Mapping/mapdata')
@@ -22,22 +24,24 @@ setwd('C:/Users/user/Documents/BwD work/Interactive Mapping/mapdata')
 # because we need to take the England average from the 'DivergePoint' column
 metadata <- read_csv("Metadata.csv")
 
-# Reading NCMP data. NB - there are more years (i.e. columns) of obesity data than of excess weight data
+# Reading NCMP data. NB - went to 'Download' tab of the NCMP profile, and downloaded the 'Data for MSOA' file 
+# under the heading 'Domain: NCMP small area data'
 
-# NB - data now supplied as a .ods file, but read_ods is SLOW!!! 
-# So have downloaded the file and then saved it in Excel format.
-
-excessRecep <- read_excel("NCMP_data_MSOA_update_2019.xlsx",sheet=2,skip=2) %>% add_column(IndID = "Excess_Reception") %>%
-  select(IndID,`LA name`,polycode =`MSOA code`,value = `%__5`,LCI = `LCI__5`,UCI = `UCI__5`)
-obeseRecep <- read_excel("NCMP_data_MSOA_update_2019.xlsx",sheet=3,skip=2) %>% add_column(IndID = "Obese_Reception") %>%
-  select(IndID,`LA name`,polycode =`MSOA code`,value = `%__7`,LCI = `LCI__7`,UCI = `UCI__7`)
-excessYear6 <- read_excel("NCMP_data_MSOA_update_2019.xlsx",sheet=4,skip=2) %>% add_column(IndID = "Excess_Year6") %>%
-  select(IndID,`LA name`,polycode =`MSOA code`,value = `%__5`,LCI = `LCI__5`,UCI = `UCI__5`)
-obeseYear6 <- read_excel("NCMP_data_MSOA_update_2019.xlsx",sheet=5,skip=2) %>% add_column(IndID = "Obese_Year6") %>%
-  select(IndID,`LA name`,polycode =`MSOA code`,value = `%__7`,LCI = `LCI__7`,UCI = `UCI__7`)
-NCMP <- bind_rows(excessRecep,obeseRecep,excessYear6,obeseYear6) 
-PennineNCMP <- NCMP %>% filter(`LA name` %in% c('Blackburn with Darwen','Burnley','Hyndburn','Pendle','Ribble Valley','Rossendale')) %>%
-  mutate(value = as.numeric(value),LCI = as.numeric(LCI),UCI = as.numeric(UCI))
+PennineNCMP <- read.csv("NCMP_data_MSOA_update_2020.csv", 
+  colClasses = c("numeric","NULL","NULL","character","character","NULL","character",
+     "NULL","NULL","NULL","NULL","NULL","numeric","numeric","numeric",
+     "NULL","NULL","NULL","NULL","NULL","NULL","NULL","NULL","numeric","NULL","NULL")) %>% 
+  filter(`Area.Type` == "MSOA") %>%
+  filter(`Time.period.Sortable` == max(`Time.period.Sortable`)) %>% # only want the latest data
+  mutate(IndID = case_when(
+    Indicator.ID == 93105 ~ "Obese_Reception",
+    Indicator.ID == 93106 ~ "Excess_Reception",
+    Indicator.ID == 93107 ~ "Obese_Year6",
+    Indicator.ID == 93108 ~ "Excess_Year6",
+    TRUE ~ "" # shouldn't occur
+  )) %>%
+ filter(`Parent.Name` %in% c('Blackburn with Darwen','Burnley','Hyndburn','Pendle','Ribble Valley','Rossendale')) %>%  
+ select(IndID,polycode =`Area.Code`,value = Value,LCI = `Lower.CI.95.0.limit`,UCI = `Upper.CI.95.0.limit`)   
 
 # Append the England average (stored in metadata as 'DivergePoint') for comparison
 PennineNCMP <- PennineNCMP %>% left_join(metadata,by = "IndID") %>%
@@ -61,9 +65,9 @@ PennineNCMP <- PennineNCMP %>% left_join(metadata,by = "IndID") %>%
 
 # NB - not using read.csv because it doesn't handle the commas in the amounts of money properly
 
-income <- read_csv("https://www.ons.gov.uk/file?uri=/employmentandlabourmarket/peopleinwork/earningsandworkinghours/datasets/smallareaincomeestimatesformiddlelayersuperoutputareasenglandandwales/financialyearending2016/1totalannualincome.csv",skip=3,n_max=7201,
+income <- read_csv("https://www.ons.gov.uk/file?uri=%2femploymentandlabourmarket%2fpeopleinwork%2fearningsandworkinghours%2fdatasets%2fsmallareaincomeestimatesformiddlelayersuperoutputareasenglandandwales%2ffinancialyearending2018/totalannualincome2018.csv",skip=5,n_max=7201,
                    col_names = c("MSOA code","MSOA name","LA code","LA name","Region code","Region name",
-                                 "TotIncome","X8","X9","X10","X11","X12","X13","X14"))
+                                 "TotIncome","X8","X9","X10"))
 income <- income %>%
   select(`MSOA code`,`MSOA name`,`LA code`,`LA name`,`Region code`,`Region name`,`TotIncome`) %>%
   filter(`Region name` != "Wales")
@@ -86,7 +90,7 @@ PennineIncome <- PennineIncome %>%
 # Now reading the ONS MSOA-level house prices #
 ###############################################
 options(scipen = 999) # don't want scientific notation
-HousePrices <- read_excel("hpssadataset2medianpricepaidbymsoa.xls", sheet = '1a', range = "A6:CT7207", na = ":") %>% filter(`Local authority name` %in% c('Blackburn with Darwen','Burnley','Hyndburn','Pendle','Ribble Valley','Rossendale')) 
+HousePrices <- read_excel("HPSSA Dataset 2 - Median price paid by MSOA.xls", sheet = '1a', range = "A6:CV7207", na = ":") %>% filter(`Local authority name` %in% c('Blackburn with Darwen','Burnley','Hyndburn','Pendle','Ribble Valley','Rossendale')) 
 latestyear <- tail(names(HousePrices),1) # i.e. name of last column, something like 'Year ending Mar 2019'
 HousePrices <- HousePrices %>%
   select(polycode = `MSOA code`,value = tail(names(.), 1)) %>% # i.e. take value from last column
