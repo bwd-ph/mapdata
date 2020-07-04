@@ -3,6 +3,17 @@ library(sqldf)
 library(stringr)
 library(readxl)
 library(readr)
+library(curl)
+
+# Read in House of Commons Library MSOA names
+
+# Method of downloading and opening .csv file taken from Colin Angus's example at https://github.com/VictimOfMaths/Experiments/blob/master/COVIDLAHeatmap.R
+
+temp <- tempfile()
+source <- "https://visual.parliament.uk/msoanames/static/MSOA-Names-v1.1.0.csv"
+temp <- curl_download(url=source, destfile=temp, quiet=FALSE, mode="wb")
+msoanames <- read.csv(temp) %>% rename(polycode = 1) %>% # 1st column name is corrupted
+select(polycode,msoa11hclnm)
 
 ##################################################################
 # Child obesity data (NCMP) 
@@ -43,10 +54,13 @@ PennineNCMP <- read.csv("NCMP_data_MSOA_update_2020.csv",
  filter(`Parent.Name` %in% c('Blackburn with Darwen','Burnley','Hyndburn','Pendle','Ribble Valley','Rossendale')) %>%  
  select(IndID,polycode =`Area.Code`,value = Value,LCI = `Lower.CI.95.0.limit`,UCI = `Upper.CI.95.0.limit`)   
 
+# Attach House of Commons MSOA names
+PennineNCMP <- PennineNCMP %>% left_join(msoanames,by = "polycode")
 # Append the England average (stored in metadata as 'DivergePoint') for comparison
 PennineNCMP <- PennineNCMP %>% left_join(metadata,by = "IndID") %>%
-  select(IndID,polycode,value,LCI,UCI,England=DivergePoint) %>%
+  select(IndID,polycode,value,LCI,UCI,England=DivergePoint,msoa11hclnm) %>%
   mutate(label = paste0("MSOA: ",polycode,"<br/>",
+                        "(aka ",sQuote(msoa11hclnm),")<br/>",
                         ifelse(is.na(value),"",
                         ifelse(IndID == "Excess_Reception","Prevalence of excess weight in Reception = ",
                         ifelse(IndID == "Obese_Reception","Prevalence of obesity in Reception = ",
@@ -77,8 +91,12 @@ income$decile <- pmin(((income$rank-1)%/%679)+1,10)
 income$decile <- factor(income$decile)
 PennineIncome <- income %>% filter(`LA name` %in% c('Blackburn with Darwen','Burnley','Hyndburn','Pendle','Ribble Valley','Rossendale')) %>% add_column(IndID = "Tot_annual_income")
 
+# Attach House of Commons MSOA names
+PennineIncome <- PennineIncome %>% left_join(msoanames,by = c("MSOA code" = "polycode"))
+
 PennineIncome <- PennineIncome %>%
   mutate(label = paste0("MSOA: ", `MSOA code`,"<br/>",
+                        "(aka ",sQuote(msoa11hclnm),")<br/>",
                         "Household Income: £",TotIncome,"<br>",
                         "Rank: ",rank," (out of 6791)","<br>",
                         "Decile: ",decile," (out of 10)","<br>","(Lowest ranks/deciles = lowest income)")) %>%
@@ -97,7 +115,9 @@ HousePrices <- HousePrices %>%
   add_column(IndID = "House_Prices_MSOA") %>%
   left_join(metadata, by = "IndID") %>%
   select(IndID,polycode,value,England=DivergePoint) %>%
+  left_join(msoanames,by = "polycode") %>% # Attach House of Commons MSOA names
   mutate(label = paste0("MSOA: ",polycode,"<br/>",
+                        "(aka ",sQuote(msoa11hclnm),")<br/>",
                         "Median house price for","<br/>",latestyear,": ",
                         ifelse(is.na(value),"<br/>N/A (fewer than 5 sales)",
                                paste0("£",prettyNum(value,format = "g",decimal.mark = ".",big.mark = ",",drop0trailing = TRUE))),"<br/>",

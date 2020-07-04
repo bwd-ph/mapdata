@@ -1,19 +1,41 @@
 library(tidyverse)
 library(sqldf)
 library(stringr)
+library(curl)
+library(readr)
+
+# Read in House of Commons Library MSOA names
+
+# Method of downloading and opening .csv file taken from Colin Angus's example at https://github.com/VictimOfMaths/Experiments/blob/master/COVIDLAHeatmap.R
+
+temp <- tempfile()
+source <- "https://visual.parliament.uk/msoanames/static/MSOA-Names-v1.1.0.csv"
+temp <- curl_download(url=source, destfile=temp, quiet=FALSE, mode="wb")
+msoanames <- read.csv(temp) %>% rename(AreaCode = 1) %>% # 1st column name is corrupted
+  select(AreaCode,msoa11hclnm)
 
 setwd('C:/Users/user/Documents/BwD work/Interactive Mapping/mapdata')
-
-# NB - New data file is supplied in ods format. Opened it in Excel and saved it as a .csv, because ods files take an age to read in R.
-LocalHealth <- read.csv("Create_data_files/Local_Health_MSOA_data_June_2019.csv")
 
 # NB - except for Standardised Ratios, the variable must already be in the Metadata.csv file, 
 # because we need to take the England average from the 'DivergePoint' column
 metadata <- read_csv("Metadata.csv")
 
-PennineLH <- LocalHealth %>% 
-  filter(`Parent.Name` %in% c('Blackburn with Darwen','Burnley','Hyndburn','Pendle','Ribble Valley','Rossendale')) %>%
-  filter(Category == "")
+# NB - Old version of Local Health let you download all the data in ods format. I opened it in Excel and saved it as a .csv, because ods files take an age to read in R.
+# LocalHealth <- read.csv("Create_data_files/Local_Health_MSOA_data_June_2019.csv")
+# PennineLH <- LocalHealth %>% 
+#  filter(`Parent.Name` %in% c('Blackburn with Darwen','Burnley','Hyndburn','Pendle','Ribble Valley','Rossendale')) %>%
+#  filter(Category == "")
+
+# However, new version of Local Health does not seem to have an (obvious) option for downloading all the data in that way. 
+# Therefore using fingertipsR instead.
+library(fingertipsR)
+our_inds <- c(93250,93252,93253,93254,93255,93256,93257,93259,93260,93480,
+              93227,93229,93231,93232,93233,93239,93240,93241,
+              93234,93235,93236,93237,93238,
+              93283,93298,
+              93115,93219,93114,93224,93116)
+PennineLH <- fingertips_data(ProfileID = 143, AreaTypeID = 3, IndicatorID = our_inds) %>%
+  filter(ParentName %in% c('Blackburn with Darwen','Burnley','Hyndburn','Pendle','Ribble Valley','Rossendale'),AreaType == "MSOA")
 
 fingertips.switch <- function(x,y=NULL)
 {
@@ -52,73 +74,80 @@ fingertips.switch <- function(x,y=NULL)
   ))))))))))))))))))))))))))))))))
 }
 
+# Attach House of Commons MSOA names
+PennineLH <- PennineLH %>% left_join(msoanames,by = "AreaCode")
+
 # Just selecting mortality measures expressed as SMRs 
-PennineMortality <- PennineLH %>% filter(`Indicator.ID` %in% c(93250,93252,93253,93254,93255,93256,93257,93259,93260,93480))
-PennineMortality <- PennineMortality %>% transmute(IndID = fingertips.switch(`Indicator.ID`),
-                                      polycode = `Area.Code`,
+PennineMortality <- PennineLH %>% filter(`IndicatorID` %in% c(93250,93252,93253,93254,93255,93256,93257,93259,93260,93480))
+PennineMortality <- PennineMortality %>% transmute(IndID = fingertips.switch(`IndicatorID`),
+                                      polycode = `AreaCode`,
                                       value = Value,
-                                      label = paste0("MSOA: ",`Area.Code`,"<br/>",
+                                      label = paste0("MSOA: ",`AreaCode`,"<br/>",
+                                                     "(aka ",sQuote(msoa11hclnm),")<br/>",
                                                      ifelse(is.na(value),"","Standardised Mortality Ratio (SMR): "),
                                                      ifelse(is.na(value),"No data for this area",round(Value,digits=1)),"<br/>",
-                                                     ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                                    "Similar","Similar to England (= 100)",
-                                                     ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                                    "Higher", "Higher than England (= 100)",
-                                                     ifelse(`Compared.to.England.value.or.percentiles` ==       
+                                                     ifelse(`ComparedtoEnglandvalueorpercentiles` ==                                                                                                    "Similar","Similar to England (= 100)",
+                                                     ifelse(`ComparedtoEnglandvalueorpercentiles` ==                                                                                                    "Higher", "Higher than England (= 100)",
+                                                     ifelse(`ComparedtoEnglandvalueorpercentiles` ==       
                                                              "Lower", "Lower than England (= 100)",
-                                                     ifelse(`Compared.to.England.value.or.percentiles` ==
+                                                     ifelse(`ComparedtoEnglandvalueorpercentiles` ==
                                                             "Better", "Better than England (= 100)",
-                                                     ifelse(`Compared.to.England.value.or.percentiles` ==
+                                                     ifelse(`ComparedtoEnglandvalueorpercentiles` ==
                                                             "Worse", "Worse than England (= 100)","")))))))
 
 # Just selecting admissions expressed as SARs
-PennineAdmissions <- PennineLH %>% filter(`Indicator.ID` %in% c(93227,93229,93231,93232,93233,93239,93240,93241))
-PennineAdmissions <- PennineAdmissions %>% transmute(IndID = fingertips.switch(`Indicator.ID`),
-                                      polycode = `Area.Code`,
+PennineAdmissions <- PennineLH %>% filter(`IndicatorID` %in% c(93227,93229,93231,93232,93233,93239,93240,93241))
+PennineAdmissions <- PennineAdmissions %>% transmute(IndID = fingertips.switch(`IndicatorID`),
+                                      polycode = `AreaCode`,
                                       value = Value,
-                                      label = paste0("MSOA: ",`Area.Code`,"<br/>",
+                                      label = paste0("MSOA: ",`AreaCode`,"<br/>",
+                                                     "(aka ",sQuote(msoa11hclnm),")<br/>",
                                                      ifelse(is.na(value),"","Standardised Admission Ratio (SAR): "),
                                                      ifelse(is.na(value),"No data for this area",round(Value,digits=1)),"<br/>",
-                                                     ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                                    "Similar","Similar to England (= 100)",
-                                                     ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                                     "Higher", "Higher than England (= 100)",
-                                                     ifelse(`Compared.to.England.value.or.percentiles` ==       
+                                                     ifelse(`ComparedtoEnglandvalueorpercentiles` ==                                                                                                    "Similar","Similar to England (= 100)",
+                                                     ifelse(`ComparedtoEnglandvalueorpercentiles` ==                                                                                                     "Higher", "Higher than England (= 100)",
+                                                     ifelse(`ComparedtoEnglandvalueorpercentiles` ==       
                                                              "Lower", "Lower than England (= 100)",
-                                                     ifelse(`Compared.to.England.value.or.percentiles` ==
+                                                     ifelse(`ComparedtoEnglandvalueorpercentiles` ==
                                                             "Better", "Better than England (= 100)",
-                                                     ifelse(`Compared.to.England.value.or.percentiles` ==
+                                                     ifelse(`ComparedtoEnglandvalueorpercentiles` ==
                                                             "Worse", "Worse than England (= 100)","")))))))
 
 # Just selecting incidences expressed as SIRs
-PennineIncidences <- PennineLH %>% filter(`Indicator.ID` %in% c(93234,93235,93236,93237,93238))
-PennineIncidences <- PennineIncidences %>% transmute(IndID = fingertips.switch(`Indicator.ID`),
-                                                     polycode = `Area.Code`,
+PennineIncidences <- PennineLH %>% filter(`IndicatorID` %in% c(93234,93235,93236,93237,93238))
+PennineIncidences <- PennineIncidences %>% transmute(IndID = fingertips.switch(`IndicatorID`),
+                                                     polycode = `AreaCode`,
                                                      value = Value,
-                                                     label = paste0("MSOA: ",`Area.Code`,"<br/>",
+                                                     label = paste0("MSOA: ",`AreaCode`,"<br/>",
+                                                     "(aka ",sQuote(msoa11hclnm),")<br/>",
                                                      ifelse(is.na(value),"","Standardised Incidence Ratio (SIR): "),
                                                      ifelse(is.na(value),"No data for this area",round(Value,digits=1)),"<br/>",
-                                                     ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                      "Similar","Similar to England (= 100)",
-                                                     ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                      "Higher", "Higher than England (= 100)",
-                                                     ifelse(`Compared.to.England.value.or.percentiles` ==       
+                                                     ifelse(`ComparedtoEnglandvalueorpercentiles` ==                                                                                      "Similar","Similar to England (= 100)",
+                                                     ifelse(`ComparedtoEnglandvalueorpercentiles` ==                                                                                      "Higher", "Higher than England (= 100)",
+                                                     ifelse(`ComparedtoEnglandvalueorpercentiles` ==       
                                                           "Lower", "Lower than England (= 100)",
-                                                     ifelse(`Compared.to.England.value.or.percentiles` ==
+                                                     ifelse(`ComparedtoEnglandvalueorpercentiles` ==
                                                          "Better", "Better than England (= 100)",
-                                                     ifelse(`Compared.to.England.value.or.percentiles` ==
+                                                     ifelse(`ComparedtoEnglandvalueorpercentiles` ==
                                                           "Worse", "Worse than England (= 100)","")))))))
 
 # Just selecting expectancies expressed in years
-PennineExpectancies <- PennineLH %>% filter(`Indicator.ID` %in% c(93283,93298))
-PennineExpectancies <- PennineExpectancies %>% transmute(IndID = fingertips.switch(`Indicator.ID`,Sex),
-                                      polycode = `Area.Code`,
+PennineExpectancies <- PennineLH %>% filter(`IndicatorID` %in% c(93283,93298))
+PennineExpectancies <- PennineExpectancies %>% transmute(IndID = fingertips.switch(`IndicatorID`,Sex),
+                                      polycode = `AreaCode`,
                                       value = Value,
-                                      label = paste0("MSOA: ",`Area.Code`,"<br/>",
+                                      label = paste0("MSOA: ",`AreaCode`,"<br/>",
+                                                    "(aka ",sQuote(msoa11hclnm),")<br/>",
                                                     ifelse(is.na(value),"",
-                                                    ifelse(`Indicator.ID` == 93283,"Life Expectancy: ","Healthy Life Expectancy: ")),
+                                                    ifelse(`IndicatorID` == 93283,"Life Expectancy: ","Healthy Life Expectancy: ")),
                                                     ifelse(is.na(value),"No data for this area",round(Value,digits=1)),"<br/>",
-                                                    ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                      "Similar","Similar to England",
-                                                    ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                    "Higher", "Higher than England",
-                                                    ifelse(`Compared.to.England.value.or.percentiles` ==       
+                                                    ifelse(`ComparedtoEnglandvalueorpercentiles` ==                                                                                      "Similar","Similar to England",
+                                                    ifelse(`ComparedtoEnglandvalueorpercentiles` ==                                                                                    "Higher", "Higher than England",
+                                                    ifelse(`ComparedtoEnglandvalueorpercentiles` ==       
                                                        "Lower", "Lower than England",
-                                                    ifelse(`Compared.to.England.value.or.percentiles` ==
+                                                    ifelse(`ComparedtoEnglandvalueorpercentiles` ==
                                                        "Better", "Better than England",
-                                                    ifelse(`Compared.to.England.value.or.percentiles` ==
+                                                    ifelse(`ComparedtoEnglandvalueorpercentiles` ==
                                                        "Worse", "Worse than England","")))))))
 
 # If we have data for the chosen MSOA, append the England average (stored in metadata as 'DivergePoint') to the label for comparison
@@ -127,21 +156,22 @@ PennineExpectancies <- PennineExpectancies %>% left_join(metadata,by = "IndID") 
               select(IndID,polycode,value,label=label2)
 
 # Just selecting child admissions and attendances
-PennineChildAdmit <- PennineLH %>% filter(`Indicator.ID` %in% c(93115,93219,93114,93224,93116))
-PennineChildAdmit <- PennineChildAdmit %>% transmute(IndID = fingertips.switch(`Indicator.ID`),
-                                      polycode = `Area.Code`,
+PennineChildAdmit <- PennineLH %>% filter(`IndicatorID` %in% c(93115,93219,93114,93224,93116))
+PennineChildAdmit <- PennineChildAdmit %>% transmute(IndID = fingertips.switch(`IndicatorID`),
+                                      polycode = `AreaCode`,
                                       value = Value,
-                                      label = paste0("MSOA: ",`Area.Code`,"<br/>",
+                                      label = paste0("MSOA: ",`AreaCode`,"<br/>",
+                                                    "(aka ",sQuote(msoa11hclnm),")<br/>",
                                                     ifelse(is.na(value),"",
-                                                    ifelse(`Indicator.ID` %in% c(93115,93116),"Crude rate per 1000: ","Crude rate per 10,000: ")),
+                                                    ifelse(`IndicatorID` %in% c(93115,93116),"Crude rate per 1000: ","Crude rate per 10,000: ")),
                                                     ifelse(is.na(value),"No data for this area",round(Value,digits=1)),"<br/>",
-                                                    ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                                  "Similar","Similar to England",
-                                                    ifelse(`Compared.to.England.value.or.percentiles` ==                                                                                                  "Higher", "Higher than England",
-                                                    ifelse(`Compared.to.England.value.or.percentiles` ==       
+                                                    ifelse(`ComparedtoEnglandvalueorpercentiles` ==                                                                                                  "Similar","Similar to England",
+                                                    ifelse(`ComparedtoEnglandvalueorpercentiles` ==                                                                                                  "Higher", "Higher than England",
+                                                    ifelse(`ComparedtoEnglandvalueorpercentiles` ==       
                                                         "Lower", "Lower than England",
-                                                    ifelse(`Compared.to.England.value.or.percentiles` ==
+                                                    ifelse(`ComparedtoEnglandvalueorpercentiles` ==
                                                         "Better", "Better than England",
-                                                    ifelse(`Compared.to.England.value.or.percentiles` ==
+                                                    ifelse(`ComparedtoEnglandvalueorpercentiles` ==
                                                         "Worse", "Worse than England","")))))))
 # If we have data for the chosen MSOA, append the England average (stored in metadata as 'DivergePoint') to the label for comparison
 PennineChildAdmit <- PennineChildAdmit %>% left_join(metadata,by = "IndID") %>%
@@ -149,5 +179,5 @@ PennineChildAdmit <- PennineChildAdmit %>% left_join(metadata,by = "IndID") %>%
   select(IndID,polycode,value,label=label2)
 
 PennineLH <- bind_rows(PennineMortality,PennineAdmissions,PennineIncidences,PennineExpectancies,PennineChildAdmit)
-write_csv(PennineLH,"PennineLH_MSOA.csv")
+write_excel_csv(PennineLH,"PennineLH_MSOA.csv")
 
